@@ -1,17 +1,12 @@
 CC=g++
-CFLAGS+=-Wall -std=c++11
-INCLUDES=-I../
-HEADERS=$(wildcard *.h)
+CFLAGS+=-Wall -std=c++11 -g -ggdb
 LDFLAGS=-lhiredis
 
 all: hiredis sample
 
-sample:	sample.cc ../db/redis_db.o $(HEADERS)
-	$(MAKE) -C ./hiredis
-	sudo $(MAKE) install -C ./hiredis
-	$(MAKE) -C ../db
-	$(CC) $(CFLAGS) $(INCLUDES) $< ../db/redis_db.o $(LDFLAGS) -o $@
+sample:	sample.cc 
+	$(CC) -o $@ $^ ./hiredis-cluster/build/libhiredis_cluster.a  $(CFLAGS) $(LDFLAGS) 
 
 clean:
 	$(RM) sample
-	$(MAKE) -C ./hiredis clean
+	# $(MAKE) -C ./hiredis clean

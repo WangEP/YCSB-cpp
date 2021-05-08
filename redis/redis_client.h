@@ -1,5 +1,7 @@
 //
 // A C++ Redis client that wraps hiredis
+// Support redis cluster mode
+// Qianli Wang <wangep@mail.ustc.edu.cn>
 //
 
 #ifndef YCSB_C_REDIS_CLIENT_H_
@@ -7,73 +9,70 @@
 
 #include <iostream>
 #include <string>
-#include "redis/hiredis/hiredis.h"
+#include "hiredis-cluster/hircluster.h"
 
 namespace ycsbc {
+    struct timeval DEFAULT_TIMEOUT = {15, 0}; // 15s
 
-class RedisClient {
- public:
-  RedisClient(const char *host, int port, int slaves);
-  ~RedisClient();
+    class RedisClient {
+        public:
+            RedisClient(const char *host_port) : RedisClient(host_port, DEFAULT_TIMEOUT) {};
+            RedisClient(const char *host_port, timeval timeout);
+            ~RedisClient();
 
-  int Command(std::string cmd);
+            int Command(std::string cmd);
 
-  redisContext *context() { return context_; }
- private:
-  void HandleError(redisReply *reply, const char *hint);
+            redisClusterContext *context() { return context_; }
+        private:
+            void HandleError(redisReply *reply, const char *hint);
+            redisClusterContext *context_;
+    };
 
-  redisContext *context_;
-  int slaves_;
-};
+    //
+    // Implementation
+    //
 
-//
-// Implementation
-//
-inline RedisClient::RedisClient(const char *host, int port, int slaves) :
-    slaves_(slaves) {
-  context_ = redisConnect(host, port);
-  if (!context_ || context_->err) {
-    if (context_) {
-      std::cerr << "Connect error: " << context_->errstr << std::endl;
-      redisFree(context_);
-    } else {
-      std::cerr << "Connect error: can't allocate redis context!" << std::endl;
+    inline RedisClient::RedisClient(const char *host_port, timeval timeout) {
+        context_ = redisClusterContextInit();
+        redisClusterSetOptionAddNodes(context_, host_port);
+        redisClusterSetOptionConnectTimeout(context_, timeout);
+        redisClusterSetOptionRouteUseSlots(context_);
+        redisClusterConnect2(context_);
+        if (context_ && context_->err) {
+            printf("Error: %s\n", context_->errstr);
+            // handle error
+            exit(-1);
+        }
     }
-    exit(1);
-  }
-}
 
-inline RedisClient::~RedisClient() {
-  if (context_) {
-    redisFree(context_);
-  }
-}
-
-inline int RedisClient::Command(std::string cmd) {
-  redisReply *reply;
-  redisAppendCommand(context_, cmd.data());
-  if (slaves_) {
-    redisAppendCommand(context_, "WAIT %d %d", slaves_, 0);
-  }
-  if (redisGetReply(context_, (void **)&reply) == REDIS_ERR) {
-    HandleError(reply, cmd.c_str());
-  }
-  freeReplyObject(reply);
-  if (slaves_) {
-    if (redisGetReply(context_, (void **)&reply) == REDIS_ERR) {
-      HandleError(reply, "WAIT");
+    inline RedisClient::~RedisClient() {
+        if (context_) {
+            redisClusterFree(context_);
+        }
     }
-    freeReplyObject(reply);
-  }
-  return 0;
-}
 
-inline void RedisClient::HandleError(redisReply *reply, const char *hint) {
-  std::cerr << hint << " error: " << context_->errstr << std::endl;
-  if (reply) freeReplyObject(reply);
-  redisFree(context_);
-  exit(2); 
-}
+    inline int RedisClient::Command(std::string cmd) {
+        redisReply *reply = 
+            (redisReply *)redisClusterCommand(context_, cmd.c_str());
+
+        if (reply == NULL) {
+            printf("Bad Reply\n");
+            exit(3);
+        }
+
+        if (reply->type == REDIS_REPLY_ERROR) {
+            HandleError(reply, cmd.c_str());
+        }
+        freeReplyObject(reply);
+        return 0;
+    }
+
+    inline void RedisClient::HandleError(redisReply *reply, const char *hint) {
+        std::cerr << hint << " error: " << this->context_->errstr << std::endl;
+        if (reply) freeReplyObject(reply);
+        redisClusterFree(this->context_);
+        exit(2); 
+    }
 
 } // namespace ycsbc
 

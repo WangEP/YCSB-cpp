@@ -27,7 +27,7 @@ else
 endif
 
 ifeq ($(BIND_LEVELDB), 1)
-	LDFLAGS += -lleveldb
+	LDFLAGS += -lleveldb -lsnappy
 	SOURCES += $(wildcard leveldb/*.cc)
 endif
 
