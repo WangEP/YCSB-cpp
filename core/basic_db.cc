@@ -7,7 +7,7 @@
 //
 
 #include "basic_db.h"
-#include "core/db_factory.h"
+#include "db_factory.h"
 
 using std::cout;
 using std::endl;

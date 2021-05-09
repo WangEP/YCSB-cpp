@@ -13,9 +13,7 @@ DEBUG_BUILD ?= 0
 EXTRA_CXXFLAGS ?=
 EXTRA_LDFLAGS ?=
 
-BIND_LEVELDB ?= 1
-BIND_ROCKSDB ?= 1
-BIND_LMDB ?= 1
+BIND_REDIS ?= 1
 
 #----------------------------------------------------------
 
@@ -26,20 +24,15 @@ else
 	CPPFLAGS += -DNDEBUG
 endif
 
-ifeq ($(BIND_LEVELDB), 1)
-	LDFLAGS += -lleveldb -lsnappy
-	SOURCES += $(wildcard leveldb/*.cc)
-endif
 
-ifeq ($(BIND_ROCKSDB), 1)
-	LDFLAGS += -lrocksdb
-	SOURCES += $(wildcard rocksdb/*.cc)
-endif
 
-ifeq ($(BIND_LMDB), 1)
-	LDFLAGS += -llmdb
-	SOURCES += $(wildcard lmdb/*.cc)
-endif
+
+ifeq ($(BIND_REDIS), 1)
+	SOURCES += $(wildcard redis/*.cc)
+	CXXFLAGS += -static
+	LDFLAGS += ./redis/hiredis-cluster/lib/libhiredis_static.a
+	LDFLAGS += ./redis/hiredis-cluster/lib/libhiredis_cluster.a
+endif 
 
 CXXFLAGS += -std=c++11 -Wall -pthread $(EXTRA_CXXFLAGS) -I./
 LDFLAGS += $(EXTRA_LDFLAGS) -lpthread
@@ -52,6 +45,10 @@ all: $(EXEC)
 
 $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+
+sample: ./redis/sample.cpp ./redis/redis_db.o  
+	$(CXX) -o $@ $^ ./redis/hiredis-cluster/build/libhiredis_cluster.a  -Wall -std=c++11 -g -lhiredis
+
 
 .cc.o:
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
@@ -66,5 +63,6 @@ endif
 clean:
 	find . -name "*.[od]" -delete
 	$(RM) $(EXEC)
+	$(RM) sample
 
 .PHONY: clean

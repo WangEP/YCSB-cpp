@@ -11,6 +11,7 @@
 #include <limits>
 #include <numeric>
 #include <sstream>
+#include <string>
 
 namespace ycsbc {
 

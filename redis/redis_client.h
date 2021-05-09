@@ -12,12 +12,12 @@
 #include "hiredis-cluster/hircluster.h"
 
 namespace ycsbc {
-    struct timeval DEFAULT_TIMEOUT = {15, 0}; // 15s
+    /* struct timeval REDIS_DEFAULT_TIMEOUT = {15, 0}; // 15s */
 
     class RedisClient {
         public:
-            RedisClient(const char *host_port) : RedisClient(host_port, DEFAULT_TIMEOUT) {};
-            RedisClient(const char *host_port, timeval timeout);
+            /* RedisClient(const char *host_port) : RedisClient(host_port, REDIS_DEFAULT_TIMEOUT) {}; */
+            RedisClient(const char *host_port);
             ~RedisClient();
 
             int Command(std::string cmd);
@@ -32,7 +32,8 @@ namespace ycsbc {
     // Implementation
     //
 
-    inline RedisClient::RedisClient(const char *host_port, timeval timeout) {
+    inline RedisClient::RedisClient(const char *host_port) {
+        struct timeval timeout = {15,0};
         context_ = redisClusterContextInit();
         redisClusterSetOptionAddNodes(context_, host_port);
         redisClusterSetOptionConnectTimeout(context_, timeout);

@@ -35,11 +35,11 @@ class DB {
   ///
   /// Initializes any state for accessing this DB.
   ///
-  virtual void Init() { }
+  virtual void Init() {}
   ///
   /// Clears any state for accessing this DB.
   ///
-  virtual void Cleanup() { }
+  virtual void Cleanup() {}
   ///
   /// Reads a record from the database.
   /// Field/value pairs from the result are stored in a vector.
@@ -100,7 +100,7 @@ class DB {
   ///
   virtual Status Delete(const std::string &table, const std::string &key) = 0;
 
-  virtual ~DB() { }
+  virtual ~DB() {}
 
   void SetProps(utils::Properties *props) {
     props_ = props;
