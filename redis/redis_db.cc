@@ -80,8 +80,8 @@ namespace ycsbc {
             /* exit(3); */
         } else if (reply->type == REDIS_REPLY_ERROR) {
             printf("Error reply\n");
-            /* exit(3); */
         }
+            /* exit(3); */
         /* if (reply->element != NULL) { */
         /*     for (size_t i = 0; i < reply->elements / 2; ++i) { */
         /*         Field tmp; */
