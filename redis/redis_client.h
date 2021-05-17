@@ -58,11 +58,10 @@ namespace ycsbc {
 
         if (reply == NULL) {
             printf("Bad Reply\n");
-            exit(3);
-        }
-
-        if (reply->type == REDIS_REPLY_ERROR) {
-            HandleError(reply, cmd.c_str());
+            /* return -1; */
+            /* exit(3); */
+        } else if (reply->type == REDIS_REPLY_ERROR) {
+            /* HandleError(reply, cmd.c_str()); */
         }
         freeReplyObject(reply);
         return 0;

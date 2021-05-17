@@ -30,12 +30,18 @@ class RandomByteGenerator : public Generator<char> {
 inline char RandomByteGenerator::Next() {
   if (off_ == 6) {
     int bytes = utils::ThreadLocalRandomInt();
-    buf_[0] = static_cast<char>((bytes & 31) + 'A');
-    buf_[1] = static_cast<char>(((bytes >> 5) & 63) + 'A');
-    buf_[2] = static_cast<char>(((bytes >> 10) & 95)+ 'A');
-    buf_[3] = static_cast<char>(((bytes >> 15) & 31)+ 'A');
-    buf_[4] = static_cast<char>(((bytes >> 20) & 63)+ 'A');
-    buf_[5] = static_cast<char>(((bytes >> 25) & 95)+ 'A');
+    /* buf_[0] = static_cast<char>((bytes & 31) + 'A'); */
+    /* buf_[1] = static_cast<char>(((bytes >> 5) & 63) + 'A'); */
+    /* buf_[2] = static_cast<char>(((bytes >> 10) & 95)+ 'A'); */
+    /* buf_[3] = static_cast<char>(((bytes >> 15) & 31)+ 'A'); */
+    /* buf_[4] = static_cast<char>(((bytes >> 20) & 63)+ 'A'); */
+    /* buf_[5] = static_cast<char>(((bytes >> 25) & 95)+ 'A'); */
+    buf_[0] = 'A';
+    buf_[1] = 'b';
+    buf_[2] = 'C';
+    buf_[3] = 'd';
+    buf_[4] = 'E';
+    buf_[5] = 'f';
     off_ = 0;
   }
   return buf_[off_++];

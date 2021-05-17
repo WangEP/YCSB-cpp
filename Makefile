@@ -29,7 +29,7 @@ endif
 
 ifeq ($(BIND_REDIS), 1)
 	SOURCES += $(wildcard redis/*.cc)
-	CXXFLAGS += -static
+	# CXXFLAGS += -static
 	LDFLAGS += ./redis/hiredis-cluster/lib/libhiredis_static.a
 	LDFLAGS += ./redis/hiredis-cluster/lib/libhiredis_cluster.a
 endif 
@@ -46,8 +46,8 @@ all: $(EXEC)
 $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
-sample: ./redis/sample.cpp ./redis/redis_db.o  
-	$(CXX) -o $@ $^ ./redis/hiredis-cluster/build/libhiredis_cluster.a  -Wall -std=c++11 -g -lhiredis
+sample: ./redis/sample.cpp
+	$(CXX) -o $@ $^ ./redis/hiredis-cluster/lib/libhiredis_cluster.a  -Wall -std=c++11 -g -lhiredis
 
 
 .cc.o:

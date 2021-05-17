@@ -75,16 +75,21 @@ namespace ycsbc {
                     redis_client->context(), "HGETALL %s", key.c_str()
                     );
         }
-        if (reply == NULL || reply->type == REDIS_REPLY_ERROR) {
-            printf("Empty reply! or error reply\n");
-            exit(3);
+        if (reply == NULL) {
+            printf("Empty reply! \n");
+            /* exit(3); */
+        } else if (reply->type == REDIS_REPLY_ERROR) {
+            printf("Error reply\n");
+            /* exit(3); */
         }
-        for (size_t i = 0; i < reply->elements / 2; ++i) {
-            Field tmp;
-            tmp.name = reply->element[2 * i]->str;
-            tmp.value = reply->element[2 * i + 1]->str;
-            result.push_back(tmp);
-        }
+        /* if (reply->element != NULL) { */
+        /*     for (size_t i = 0; i < reply->elements / 2; ++i) { */
+        /*         Field tmp; */
+        /*         tmp.name = reply->element[2 * i]->str; */
+        /*         tmp.value = reply->element[2 * i + 1]->str; */
+        /*         result.push_back(tmp); */
+        /*     } */
+        /* } */
         return DB::kOK;
     }
     DB::Status RedisDB::clusterUpdate(const std::string &table, const std::string &key,
