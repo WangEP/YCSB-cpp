@@ -75,8 +75,11 @@ namespace ycsbc {
                     redis_client->context(), "HGETALL %s", key.c_str()
                     );
         }
-        if (reply == NULL || reply->type == REDIS_REPLY_ERROR) {
-            printf("Empty reply! or error reply\n");
+        if (reply == NULL) {
+            printf("Empty reply! \n");
+            exit(3);
+        } else if (reply->type == REDIS_REPLY_ERROR) {
+            printf("Error reply\n");
             exit(3);
         }
         for (size_t i = 0; i < reply->elements / 2; ++i) {
